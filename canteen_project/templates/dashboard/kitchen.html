@@ -1,0 +1,91 @@
+<meta http-equiv="refresh" content="20">
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <div class="flex justify-between items-center bg-gray-900 text-white p-4 rounded-2xl shadow-md">
+        <div>
+            <h2 class="text-lg font-bold">Canteen Kitchen Dashboard</h2>
+            <p class="text-xs text-gray-400">Live Orders & Stock Management</p>
+        </div>
+        <a href="{% url 'dashboard_home' %}" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg text-white">
+            User Side Menu →
+        </a>
+    </div>
+
+    <!-- Active Orders Section -->
+    <div>
+        <h3 class="text-sm font-bold text-gray-700 uppercase mb-3">Live Active Orders</h3>
+        {% if active_orders %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for order in active_orders %}
+            <div class="bg-white p-4 rounded-2xl border-2 border-orange-200 shadow-sm space-y-3">
+                <div class="flex justify-between items-start border-b pb-2">
+                    <div>
+                        <span class="font-extrabold text-base text-gray-800">Order #{{ order.id }}</span>
+                        <p class="text-xs text-gray-600"><b>Student:</b> {{ order.user.username }} ({{ order.user.phone_number }})</p>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+
+                <!-- Location & Note -->
+                <div class="bg-orange-50 p-2.5 rounded-xl text-xs text-orange-900">
+                    <p><b>Spot:</b> {{ order.get_delivery_location_display }}</p>
+                    {% if order.specific_spot %}<p><b>Note:</b> {{ order.specific_spot }}</p>{% endif %}
+                </div>
+
+                <!-- Items List -->
+                <div class="space-y-1 text-xs">
+                    {% for item in order.order_items.all %}
+                    <div class="flex justify-between text-gray-700 font-semibold">
+                        <span>{{ item.quantity }} x {{ item.item.name }}</span>
+                        <span>₹{% widthratio item.price 1 item.quantity %}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="pt-2 border-t flex justify-between items-center text-xs">
+                    <span class="font-bold text-gray-800">Total: ₹{{ order.total_amount }} ({{ order.payment_method }})</span>
+                </div>
+
+                <!-- Status Buttons -->
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    {% if order.status == 'PENDING' %}
+                    <a href="{% url 'update_order_status' order.id 'OUT_FOR_DELIVERY' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded-lg text-center text-xs">
+                        Out for Delivery
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'update_order_status' order.id 'DELIVERED' %}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 rounded-lg text-center text-xs col-span-2">
+                        Mark as Delivered
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-xs text-gray-500 bg-white p-4 rounded-xl text-center">Koi pending order nahi hai.</p>
+        {% endif %}
+    </div>
+
+    <!-- Quick Stock Control Toggle -->
+    <div class="bg-white p-4 rounded-2xl border shadow-sm">
+        <h3 class="text-sm font-bold text-gray-700 uppercase mb-3">Menu Items Stock Toggle</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {% for item in items %}
+            <div class="flex justify-between items-center p-2.5 border rounded-xl">
+                <div>
+                    <p class="font-bold text-xs">{{ item.name }}</p>
+                    <p class="text-[10px] text-gray-500">₹{{ item.price }}</p>
+                </div>
+                <a href="{% url 'toggle_item_availability' item.id %}" class="px-2.5 py-1 rounded text-[10px] font-bold text-white {% if item.is_available %}bg-green-500{% else %}bg-red-500{% endif %}">
+                    {% if item.is_available %}In Stock{% else %}Out of Stock{% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

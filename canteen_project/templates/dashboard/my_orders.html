@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-6 space-y-4">
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-800">My Orders</h2>
+        <a href="{% url 'dashboard_home' %}" class="text-xs text-orange-600 font-semibold hover:underline">← Back to Menu</a>
+    </div>
+
+    {% if orders %}
+    <div class="space-y-4">
+        {% for order in orders %}
+        <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm space-y-3">
+            <div class="flex justify-between items-start border-b pb-2">
+                <div>
+                    <span class="font-bold text-sm text-gray-800">Order #{{ order.id }}</span>
+                    <p class="text-[10px] text-gray-400">{{ order.created_at|date:"d M Y, h:i A" }}</p>
+                </div>
+                <!-- Status Badge -->
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold 
+                    {% if order.status == 'PENDING' %}bg-amber-100 text-amber-700
+                    {% elif order.status == 'OUT_FOR_DELIVERY' %}bg-blue-100 text-blue-700
+                    {% elif order.status == 'DELIVERED' %}bg-green-100 text-green-700
+                    {% else %}bg-red-100 text-red-700{% endif %}">
+                    {{ order.get_status_display }}
+                </span>
+                {% if order.status == 'PENDING' %}
+                <a href="{% url 'cancel_order' order.id %}" onclick="return confirm('Kya aap order cancel karna chahte hain?')" class="text-xs text-red-600 font-bold hover:underline block mt-1">
+                Cancel Order
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Items List -->
+            <div class="space-y-1">
+                {% for item in order.order_items.all %}
+                <div class="flex justify-between text-xs text-gray-600">
+                    <span>{{ item.quantity }} x {{ item.item.name }}</span>
+                    <span>₹{% widthratio item.price 1 item.quantity %}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="pt-2 border-t flex justify-between items-center text-xs">
+                <span class="text-gray-500">Spot: <b>{{ order.get_delivery_location_display }}</b></span>
+                <span class="font-extrabold text-sm text-orange-600">₹{{ order.total_amount }} ({{ order.payment_method }})</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-white rounded-2xl border border-gray-100">
+        <p class="text-sm text-gray-500">Aapne abhi tak koi order nahi kiya hai.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+{% if order.status == 'PENDING' %}
+<a href="{% url 'cancel_order' order.id %}" onclick="return confirm('Kya aap order cancel karna chahte hain?')" class="text-xs text-red-600 font-bold hover:underline">
+    Cancel Order
+</a>
+{% endif %}

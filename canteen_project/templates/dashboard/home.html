@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- 3D Animated Colorful Canvas Background (Floating Elements & Multi-Glow) -->
+<div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-slate-950">
+    <!-- Glowing Animated Gradient Orbs -->
+    <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-amber-500/30 via-orange-600/20 to-rose-600/0 blur-[100px] animate-pulse"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-tl from-indigo-600/20 via-purple-600/20 to-pink-500/0 blur-[120px] animate-pulse delay-1000"></div>
+    <div class="absolute top-[40%] right-[20%] w-[350px] h-[350px] rounded-full bg-gradient-to-r from-emerald-500/15 to-teal-500/0 blur-[90px] animate-bounce duration-[8000ms]"></div>
+
+    <!-- 3D Birds Flying Animation Layer -->
+    <div class="absolute inset-0 opacity-40">
+        <div class="bird-container bird-container--one">
+            <div class="bird bird--one"></div>
+        </div>
+        <div class="bird-container bird-container--two">
+            <div class="bird bird--two"></div>
+        </div>
+        <div class="bird-container bird-container--three">
+            <div class="bird bird--three"></div>
+        </div>
+        <div class="bird-container bird-container--four">
+            <div class="bird bird--four"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Header Bar -->
+<nav class="bg-slate-900/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 shadow-xl">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+        <!-- Drawer Menu Button -->
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSideMenu()" class="p-2.5 bg-white/5 hover:bg-orange-500/20 border border-white/10 rounded-2xl text-white active:scale-90 transition-all shadow-inner">
+                <i class="fa-solid fa-bars-staggered text-lg text-amber-400"></i>
+            </button>
+            <h1 class="text-lg font-black tracking-wide bg-gradient-to-r from-amber-300 via-orange-400 to-rose-400 bg-clip-text text-transparent flex items-center gap-2">
+                <i class="fa-solid fa-utensils text-orange-400 text-xl animate-bounce"></i> Canteen Pro
+            </h1>
+        </div>
+
+        <!-- Top Right Icons -->
+        <div class="flex items-center gap-2.5">
+            <a href="{% url 'notifications' %}" class="p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-slate-200 relative active:scale-95 transition">
+                <i class="fa-solid fa-bell text-base text-amber-300"></i>
+                <span class="absolute top-1.5 right-1.5 bg-rose-500 ring-4 ring-slate-900 text-white text-[9px] font-extrabold rounded-full h-3.5 w-3.5 flex items-center justify-center animate-ping"></span>
+            </a>
+
+            <a href="{% url 'view_cart' %}" class="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white px-3.5 py-2 rounded-2xl text-xs font-black flex items-center gap-2 shadow-lg shadow-orange-500/30 active:scale-95 transition border border-white/20">
+                <i class="fa-solid fa-cart-shopping text-sm"></i>
+                <span>₹{{ request.session.cart|length|default:0 }}</span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Side Drawer Menu Overlay -->
+<div id="sideMenuBackdrop" onclick="toggleSideMenu()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden transition-all duration-300"></div>
+<aside id="sideMenuDrawer" class="fixed top-0 left-0 h-full w-72 bg-slate-900/95 border-r border-white/10 z-50 shadow-2xl -translate-x-full transition-transform duration-300 ease-out flex flex-col justify-between backdrop-blur-2xl">
+    <div class="p-5 space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 bg-gradient-to-tr from-amber-400 to-rose-500 text-slate-950 font-black rounded-2xl flex items-center justify-center shadow-lg text-lg">
+                    {{ request.user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-sm tracking-wide">{{ request.user.username }}</h3>
+                    <p class="text-[10px] text-amber-400 font-medium">Campus Student</p>
+                </div>
+            </div>
+            <button onclick="toggleSideMenu()" class="text-slate-400 hover:text-white p-2 bg-white/5 rounded-xl">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="space-y-2 text-xs font-bold">
+            {% if request.user.is_staff %}
+            <a href="{% url 'kitchen_dashboard' %}" class="flex items-center gap-3.5 px-4 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-lg shadow-orange-500/20 active:scale-95 transition">
+                <i class="fa-solid fa-kitchen-set text-base"></i> Kitchen Dashboard
+            </a>
+            {% endif %}
+
+            <a href="{% url 'profile' %}" class="flex items-center gap-3.5 px-4 py-3 rounded-2xl text-slate-300 bg-white/5 border border-white/5 hover:bg-white/10 hover:text-amber-300 transition">
+                <i class="fa-solid fa-user-gear text-orange-400 text-base"></i> My Profile
+            </a>
+
+            <a href="{% url 'my_orders' %}" class="flex items-center gap-3.5 px-4 py-3 rounded-2xl text-slate-300 bg-white/5 border border-white/5 hover:bg-white/10 hover:text-amber-300 transition">
+                <i class="fa-solid fa-receipt text-emerald-400 text-base"></i> Order History
+            </a>
+
+            <a href="{% url 'notifications' %}" class="flex items-center gap-3.5 px-4 py-3 rounded-2xl text-slate-300 bg-white/5 border border-white/5 hover:bg-white/10 hover:text-amber-300 transition">
+                <i class="fa-solid fa-bell text-sky-400 text-base"></i> Notifications
+            </a>
+        </nav>
+    </div>
+
+    <div class="p-5 border-t border-white/10">
+        <a href="{% url 'logout' %}" class="flex items-center justify-center gap-2 w-full bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-bold py-3 rounded-2xl text-xs transition active:scale-95 shadow-lg">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
+    </div>
+</aside>
+
+<!-- Main Container -->
+<div class="max-w-6xl mx-auto px-3.5 pt-3 pb-28 space-y-5">
+
+    <!-- Smart Floating Auto-Hide/Show Search Bar -->
+    <div id="smartSearchBar" class="sticky top-[60px] z-30 transition-all duration-300 transform translate-y-0 opacity-100">
+        <form method="GET" action="{% url 'dashboard_home' %}" class="flex gap-2 bg-slate-900/90 backdrop-blur-2xl p-2 rounded-2xl border border-white/15 shadow-2xl">
+            <div class="relative flex-1">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search Samosa, Cold Drink..." 
+                       class="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-amber-400 outline-none text-xs sm:text-sm text-white placeholder-slate-400 shadow-inner">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-amber-400 text-sm"></i>
+            </div>
+            <button type="submit" class="bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 hover:opacity-90 text-slate-950 font-black px-5 py-3 rounded-xl text-xs shadow-lg shadow-orange-500/25 active:scale-95 transition">
+                Search
+            </button>
+            {% if search_query or selected_category_id %}
+            <a href="{% url 'dashboard_home' %}" class="bg-white/10 hover:bg-white/20 text-slate-300 px-3.5 py-3 rounded-xl text-xs font-bold transition flex items-center border border-white/10">
+                Reset
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Glowing Categories -->
+    <div>
+        <h3 class="text-[10px] font-extrabold text-amber-400/90 uppercase tracking-widest mb-2 px-1">Categories</h3>
+        <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <a href="{% url 'dashboard_home' %}" 
+               class="px-4 py-2.5 rounded-xl text-xs font-black tracking-wide whitespace-nowrap transition-all border {% if not selected_category_id %}bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 border-amber-300 shadow-lg shadow-orange-500/30 scale-105{% else %}bg-slate-900/80 text-slate-300 border-white/10 hover:border-amber-400/50{% endif %}">
+               🔥 All Items
+            </a>
+            {% for cat in categories %}
+            <a href="?category={{ cat.id }}" 
+               class="px-4 py-2.5 rounded-xl text-xs font-black tracking-wide whitespace-nowrap transition-all border {% if selected_category_id == cat.id|stringformat:'s' %}bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 border-amber-300 shadow-lg shadow-orange-500/30 scale-105{% else %}bg-slate-900/80 text-slate-300 border-white/10 hover:border-amber-400/50{% endif %}">
+               {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Items Grid (Designed specifically for Mobile Screen Ratios) -->
+    <div>
+        <h3 class="text-[10px] font-extrabold text-amber-400/90 uppercase tracking-widest mb-2.5 px-1">Menu Cards</h3>
+        
+        {% if items %}
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {% for item in items %}
+            <div class="bg-slate-900/70 backdrop-blur-xl rounded-2xl p-2.5 border border-white/10 hover:border-amber-400/50 shadow-xl transition-all duration-300 flex flex-col justify-between relative group hover:-translate-y-1 {% if not item.is_available %}grayscale opacity-50{% endif %}">
+                
+                {% if not item.is_available %}
+                <span class="absolute top-2 right-2 bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black z-10 shadow-lg">
+                    Sold Out
+                </span>
+                {% endif %}
+
+                <div>
+                    <!-- Image Wrapper -->
+                    <div class="w-full h-32 bg-gradient-to-br from-slate-800 to-slate-950 rounded-xl mb-2 overflow-hidden flex items-center justify-center relative border border-white/5">
+                        {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        {% else %}
+                        <i class="fa-solid fa-bowl-food text-4xl text-slate-700"></i>
+                        {% endif %}
+                    </div>
+
+                    <span class="text-[9px] text-amber-400 font-extrabold uppercase tracking-widest block mb-0.5">{{ item.category.name }}</span>
+                    <h4 class="font-bold text-white text-xs sm:text-sm leading-tight mb-1 line-clamp-1">{{ item.name }}</h4>
+                    <p class="text-sm font-black text-amber-300 mb-2">₹{{ item.price }}</p>
+                </div>
+
+                <!-- Add Button -->
+                {% if item.is_available %}
+                <a href="{% url 'add_to_cart' item.id %}" class="w-full text-center bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 hover:brightness-110 text-slate-950 font-black py-2 rounded-xl text-xs transition duration-200 shadow-md shadow-orange-500/20 active:scale-95 block">
+                    + Add to Order
+                </a>
+                {% else %}
+                <button disabled class="w-full bg-slate-800 text-slate-500 font-bold py-2 rounded-xl text-xs cursor-not-allowed border border-white/5">
+                    Unavailable
+                </button>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-14 bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-white/10">
+            <i class="fa-solid fa-utensils text-4xl text-slate-700 mb-2"></i>
+            <p class="text-xs text-slate-400">No items available right now.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- Glowing Glass Floating Navigation Dock -->
+<div class="fixed bottom-3 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-slate-950/80 backdrop-blur-2xl text-white rounded-2xl p-2 z-40 shadow-2xl border border-white/15 flex justify-around items-center">
+    
+    <a href="{% url 'dashboard_home' %}" class="flex flex-col items-center gap-0.5 text-amber-400 font-black text-[10px] bg-white/10 px-3.5 py-1.5 rounded-xl border border-amber-400/30 shadow-inner">
+        <i class="fa-solid fa-house-chimney text-base"></i>
+        <span>Menu</span>
+    </a>
+
+    <a href="{% url 'view_cart' %}" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-amber-300 font-bold text-[10px] relative transition py-1.5">
+        <i class="fa-solid fa-cart-shopping text-base"></i>
+        <span>Cart</span>
+        {% if request.session.cart|length %}
+        <span class="absolute top-0 right-1 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 text-[8px] font-black h-3.5 w-3.5 rounded-full flex items-center justify-center shadow-md">
+            {{ request.session.cart|length }}
+        </span>
+        {% endif %}
+    </a>
+
+    <a href="{% url 'my_orders' %}" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-amber-300 font-bold text-[10px] transition py-1.5">
+        <i class="fa-solid fa-clock-rotate-left text-base"></i>
+        <span>Orders</span>
+    </a>
+
+    <a href="{% url 'profile' %}" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-amber-300 font-bold text-[10px] transition py-1.5">
+        <i class="fa-solid fa-circle-user text-base"></i>
+        <span>Profile</span>
+    </a>
+
+</div>
+
+<!-- CSS Animations & JS Scripts -->
+<style>
+/* 3D Flying Birds Animation Styles */
+.bird-container {
+    position: absolute;
+    top: 20%;
+    left: -10%;
+    transform: scale(0) translateY(0);
+    will-change: transform;
+    animation: fly-right-one 14s linear infinite;
+}
+.bird-container--two {
+    top: 45%;
+    animation: fly-right-two 18s linear infinite 3s;
+}
+.bird-container--three {
+    top: 10%;
+    animation: fly-right-one 22s linear infinite 7s;
+}
+.bird-container--four {
+    top: 70%;
+    animation: fly-right-two 16s linear infinite 5s;
+}
+.bird {
+    background-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/174479/bird-cells-new.svg');
+    background-size: auto 100%;
+    width: 88px;
+    height: 125px;
+    will-change: background-position;
+    animation-name: fly-cycle;
+    animation-timing-function: steps(10);
+    animation-iteration-count: infinite;
+    animation-duration: 1s;
+}
+@keyframes fly-cycle {
+    100% { background-position: -900px 0; }
+}
+@keyframes fly-right-one {
+    0% { transform: scale(0.3) translateX(-10vw); }
+    50% { transform: scale(0.4) translateY(3vh) translateX(50vw); }
+    100% { transform: scale(0.3) translateX(110vw); }
+}
+@keyframes fly-right-two {
+    0% { transform: translateY(0vh) translateX(-10vw) scale(0.25); }
+    50% { transform: translateY(-4vh) translateX(45vw) scale(0.35); }
+    100% { transform: translateY(0vh) translateX(110vw) scale(0.25); }
+}
+</style>
+
+<script>
+    // Side Menu Toggle Function
+    function toggleSideMenu() {
+        const drawer = document.getElementById('sideMenuDrawer');
+        const backdrop = document.getElementById('sideMenuBackdrop');
+        
+        if (drawer.classList.contains('-translate-x-full')) {
+            drawer.classList.remove('-translate-x-full');
+            backdrop.classList.remove('hidden');
+        } else {
+            drawer.classList.add('-translate-x-full');
+            backdrop.classList.add('hidden');
+        }
+    }
+
+    // Smart Auto Hide / Show Search Bar Logic on Scroll
+    let lastScrollTop = 0;
+    const searchBar = document.getElementById('smartSearchBar');
+
+    window.addEventListener('scroll', function() {
+        let st = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (st > lastScrollTop && st > 100) {
+            // Scroll Down -> Hide Search Bar Smoothly
+            searchBar.classList.add('-translate-y-24', 'opacity-0');
+            searchBar.classList.remove('translate-y-0', 'opacity-100');
+        } else {
+            // Scroll Up -> Immediately Show Search Bar
+            searchBar.classList.remove('-translate-y-24', 'opacity-0');
+            searchBar.classList.add('translate-y-0', 'opacity-100');
+        }
+        lastScrollTop = st <= 0 ? 0 : st;
+    }, false);
+</script>
+{% endblock %}

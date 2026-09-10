@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-12 text-center space-y-4">
+    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+        <i class="fa-solid fa-check"></i>
+    </div>
+    
+    <h2 class="text-2xl font-black text-gray-800">Order Placed Successfully!</h2>
+    <p class="text-xs text-gray-500">Order ID: <b>#{{ order.id }}</b> | Delivery within <b>25 Mins</b></p>
+
+    <div class="bg-white p-4 rounded-2xl border text-left text-xs space-y-2">
+        <p><b>Spot:</b> {{ order.get_delivery_location_display }}</p>
+        {% if order.specific_spot %}<p><b>Note:</b> {{ order.specific_spot }}</p>{% endif %}
+        <p><b>Total:</b> ₹{{ order.total_amount }} ({{ order.get_payment_method_display }})</p>
+        <p><b>Status:</b> <span class="text-orange-600 font-bold">{{ order.get_status_display }}</span></p>
+    </div>
+
+    <a href="{% url 'dashboard_home' %}" class="inline-block bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs">
+        Back to Menu
+    </a>
+</div>
+{% endblock %}
